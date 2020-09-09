@@ -1682,13 +1682,14 @@ class ARM(Architecture):
 
     all_registers = ["$r0", "$r1", "$r2", "$r3", "$r4", "$r5", "$r6",
                      "$r7", "$r8", "$r9", "$r10", "$r11", "$r12", "$sp",
-                     "$lr", "$pc", "$cpsr",]
+                     "$lr", "$pc", "$xpsr","$msp", "$psp",
+                     "$primask", "$basepri", "$faultmask", "$control", "$fpscr"]
 
     # http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0041c/Caccegih.html
     # return b"\x00\x00\xa0\xe1" # mov r0,r0
     nop_insn = b"\x01\x10\xa0\xe1" # mov r1,r1
     return_register = "$r0"
-    flag_register = "$cpsr"
+    flag_register = "$xpsr"
     flags_table = {
         31: "negative",
         30: "zero",
@@ -1696,7 +1697,7 @@ class ARM(Architecture):
         28: "overflow",
         7: "interrupt",
         6: "fast",
-        5: "thumb"
+        24: "thumb"
     }
     function_parameters = ["$r0", "$r1", "$r2", "$r3"]
     syscall_register = "$r7"
@@ -1705,7 +1706,7 @@ class ARM(Architecture):
     @lru_cache()
     def is_thumb(self):
         """Determine if the machine is currently in THUMB mode."""
-        return is_alive() and get_register(self.flag_register) & (1<<5)
+        return is_alive() and get_register(self.flag_register) & (1<<24)
 
     @property
     def pc(self):
